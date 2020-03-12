@@ -5,45 +5,33 @@ namespace Ree\kana;
 class Translate
 {
 
-	/** @var string */
-	public const LANG_JA = 'ja';
-	/** @var string */
-	public const LANG_EN = 'en';
-
 	/** @var string[] */
-	private static $kana = [];
+	private $kana = [];
 
-	/** @var bool */
-	private static $initialized = false;
+	public function __construct(array $kana){
+		$this->kana = $kana;
+	}
 
-	public static function execute(string $text, string $source, string $target): string
+	public function execute(string $text): string
 	{
-		foreach(self::$kana as $en => $ja){
+		foreach($this->kana as $en => $ja){
 			$text = str_replace($en, $ja, $text);
 		}
 		$text = rawurlencode($text);
 		$ch = curl_init();
-		curl_setopt(
-			$ch,
-			CURLOPT_URL,
-			"https://script.google.com/macros/s/AKfycbweJFfBqKUs5gGNnkV2xwTZtZPptI6ebEhcCU2_JvOmHwM2TCk/exec?text={$text}&source={$source}&target={$target}"
-		); //TODO: use https://www.google.co.jp/ime/cgiapi.html
+		curl_setopt($ch, CURLOPT_URL, "http://www.google.com/transliterate?langpair=ja-Hira|ja&text={$text}");
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		$result = curl_exec($ch);
 		curl_close($ch);
 		if($result === false){
 			throw new TranslateException('cURL connection failed');
 		}
-		return $result;
-	}
-
-	public static function initialize(array $kana){
-		if(self::$initialized){
-			throw new TranslateException('Already initialized');
+		$resultText = '';
+		foreach(json_decode($result, true) as $content){
+			$resultText .= $content[1][0];
 		}
-		self::$kana = $kana;
+		return $resultText;
 	}
 }

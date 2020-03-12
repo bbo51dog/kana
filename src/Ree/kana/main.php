@@ -14,6 +14,9 @@ use pocketmine\event\player\PlayerChatEvent;
 class main extends PluginBase implements Listener
 {
 
+	/** @var Translate */
+	private $translate;
+
 	public function onEnable()
 	{
 		$file = $this->getResource('kana.json');
@@ -22,7 +25,7 @@ class main extends PluginBase implements Listener
 			$json .= $line;
 		}
 		fclose($file);
-		Translate::initialize(json_decode($json, true));
+		$this->translate = new Translate(json_decode($json, true));
 		$this->getLogger()->info("このプラグインは開発段階なため,動作は保証できません");
 		$this->getLogger()->info("バグ報告はこちらへ");
 		$this->getLogger()->info("https://github.com/Ree-jp/kana/issues");
@@ -37,7 +40,7 @@ class main extends PluginBase implements Listener
 		$bool = $this->isChange($ev->getPlayer());
 		if ($bool) {
 			$oldMessage = $ev->getMessage();
-			Server::getInstance()->getAsyncPool()->submitTask(new TranslateTask('<'.$ev->getPlayer()->getDisplayName().'>',$oldMessage));
+			Server::getInstance()->getAsyncPool()->submitTask(new TranslateTask('<'.$ev->getPlayer()->getDisplayName().'>', $oldMessage, $this->translate));
 			$ev->setCancelled();
 		}
 	}

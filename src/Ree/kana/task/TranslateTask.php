@@ -25,10 +25,16 @@ class TranslateTask extends AsyncTask
 	 */
 	private $text;
 
-	public function __construct(string $name, string $text)
+	/**
+	 * @var Translate
+	 */
+	private $translate;
+
+	public function __construct(string $name, string $text, Translate $translate)
 	{
 		$this->name = $name;
 		$this->text = $text;
+		$this->translate = $translate;
 	}
 
 	/**
@@ -38,11 +44,7 @@ class TranslateTask extends AsyncTask
 	{
 		try
 		{
-			$en = Translate::execute(str_replace(' ', '', $this->text), Translate::LANG_JA, Translate::LANG_EN);
-			$result = Translate::execute($en, Translate::LANG_EN, Translate::LANG_JA);
-			if (mb_strlen($result) === 1551) {
-				$result = self::BAD_REQUEST_PREFIX.$this->text;
-			}
+			$result = $this->translate->execute($this->text);
 		} catch (TranslateException $e) {
 			$result = self::BAD_REQUEST_PREFIX.$this->text;
 		}
