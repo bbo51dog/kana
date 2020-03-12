@@ -16,6 +16,13 @@ class main extends PluginBase implements Listener
 
 	public function onEnable()
 	{
+		$file = $this->getResource('kana.json');
+		$json = '';
+		while (($line = fgets($file))) {
+			$json .= $line;
+		}
+		fclose($file);
+		Translate::initialize(json_decode($json, true));
 		$this->getLogger()->info("このプラグインは開発段階なため,動作は保証できません");
 		$this->getLogger()->info("バグ報告はこちらへ");
 		$this->getLogger()->info("https://github.com/Ree-jp/kana/issues");
