@@ -56,7 +56,7 @@ class TranslateTask extends AsyncTask
 	 */
 	public function onCompletion(Server $server)
 	{
-		$server->broadcastMessage($this->name . ' ' . $this->getResult() . TextFormat::GOLD. '   <' . $this->getResult() . '>');
+		$server->broadcastMessage($this->name . ' ' . $this->text . TextFormat::GOLD. '   <' . $this->getResult() . '>');
 		parent::onCompletion($server);
 	}
 }
